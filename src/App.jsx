@@ -17,8 +17,12 @@ const options = {
 const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [movieList, setMovieList] = useState([]);  
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchMovies = async () => {
+    setIsLoading(true);
+    setErrorMessage('');
     try {
       const endpoint = `${API_BASE_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc`;
       // const endpoint = `${API_BASE_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc`;
@@ -30,11 +34,17 @@ const App = () => {
       const data = await response.json();
       if(data.response === 'False'){
         setErrorMessage(data.Error);
+        setMovieList([]);
+        return;
       }
+      setMovieList(data.results || [])
       console.log(data)
     } catch (error) {
       console.log(`Error fetching movies: ${error}`);
       setErrorMessage('Error fetching movies. Please try again later.');
+    }
+    finally{
+      setIsLoading(false);
     }
   };
 
@@ -56,6 +66,18 @@ const App = () => {
 
         <section className="all-movies">
           <h2>All Movies</h2>
+          {isLoading?
+           (<p className='text-white'>Loading....</p>) 
+           : errorMessage ? 
+            (<p className='text-red-500'>{errorMessage}</p>)
+            : (<ul>
+              {movieList.map((movie)=>(
+                <p key={movie.id} className="text-white">
+                  {movie.title}
+                </p>
+              ))}
+            </ul>)
+          }
           {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         </section>
       </div>
