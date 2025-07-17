@@ -24,11 +24,14 @@ const App = () => {
       // const endpoint = `${API_BASE_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc`;
       const response = await fetch(endpoint, options);
       if (!response.ok) {
-        throw new Error('Failed to fetch movies');
+        throw new Error('Failed to Fetch movies');
       }
 
       const data = await response.json();
-      console.log(data);
+      if(data.response === 'False'){
+        setErrorMessage(data.Error);
+      }
+      console.log(data)
     } catch (error) {
       console.log(`Error fetching movies: ${error}`);
       setErrorMessage('Error fetching movies. Please try again later.');
