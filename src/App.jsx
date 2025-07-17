@@ -22,26 +22,37 @@ const App = () => {
   const [movieList, setMovieList] = useState([]);  
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (query='') => {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const endpoint = `${API_BASE_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc`;
-      // const endpoint = `${API_BASE_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc`;
+      console.log(query)
+
+      // const endpoint = query
+      // ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`
+      // : `${API_BASE_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc` ;
+      
+            const endpoint = query
+        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+
       const response = await fetch(endpoint, options);
       if (!response.ok) {
         throw new Error('Failed to Fetch movies');
       }
 
       const data = await response.json();
+      console.log('data:', data);
       if(data.response === 'False'){
         setErrorMessage(data.Error);
         setMovieList([]);
         return;
       }
+
       setMovieList(data.results || [])
       console.log(data)
-    } catch (error) {
+    } 
+    catch (error) {
       console.log(`Error fetching movies: ${error}`);
       setErrorMessage('Error fetching movies. Please try again later.');
     }
@@ -51,8 +62,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchMovies();
-  }, []);
+    fetchMovies(searchTerm);
+  }, [searchTerm]);
+
 
   return (
     <main>
